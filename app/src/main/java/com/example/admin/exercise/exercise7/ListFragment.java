@@ -1,33 +1,38 @@
-package com.example.admin.exercise.exercise6;
+package com.example.admin.exercise.exercise7;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CalendarView;
-import android.widget.TextView;
 
 import com.example.admin.exercise.R;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link FirstFragment.OnFragmentInteractionListener} interface
+ * {@link ListFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link FirstFragment#newInstance} factory method to
+ * Use the {@link ListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FirstFragment extends Fragment {
+public class ListFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -39,32 +44,18 @@ public class FirstFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    CalendarView calendarView;
-    Button calBtn;
-    TextView ageText;
+    private ArrayList<Comment> dataSet;
+    private RecyclerView recyclerView;
+    private Ex7Adapter adapter;
 
-    int sDate;
-    int sMonth;
-    int sYear;
-
-    public FirstFragment() {
+    public ListFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FirstFragment.
-     */
     // TODO: Rename and change types and number of parameters
-    public static FirstFragment newInstance(String param1, String param2) {
-        FirstFragment fragment = new FirstFragment();
+    public static ListFragment newInstance() {
+        ListFragment fragment = new ListFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -76,41 +67,44 @@ public class FirstFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        dataSet = new ArrayList<>();
+
+        Retrofit retrofit = Service.getInstance();
+        CommentService commentService = retrofit.create(CommentService.class);
+        Call<List<Comment>> comments = commentService.listComment(1);
+        comments.enqueue(new Callback<List<Comment>>() {
+            @Override
+            public void onResponse(Call<List<Comment>> call, Response<List<Comment>> response) {
+                if (response.isSuccessful()) {
+                    Log.i("Retrofit", response.message());
+
+                    for (Comment comment:
+                         response.body()) {
+                        dataSet.add(comment);
+                    }
+                    adapter.notifyDataSetChanged();
+                } else {
+                    Log.i("Retrofit", response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Comment>> call, Throwable t) {
+                Log.i("Retrofit", t.getMessage());
+            }
+        });
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_first, container, false);
-        calendarView = rootView.findViewById(R.id.calendar);
-        calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-            @Override
-            public void onSelectedDayChange(@NonNull CalendarView calendarView, int i, int i1, int i2) {
-                Log.i("Test calendar", String.format("%d, %d, %d", i, i1, i2));
-                sYear = i;
-                sMonth = i1+1;
-                sDate = i2;
-            }
-        });
-        calBtn = rootView.findViewById(R.id.calculateBtn);
-        ageText = rootView.findViewById(R.id.age);
-        calBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-                Date date = new Date();
-                int currentYear = Integer.parseInt(formatter.format(date));
-
-                ageText.setText("Your age is " + Integer.toString(currentYear - sYear) + "years old.");
-
-            }
-        });
-
+        View rootView = inflater.inflate(R.layout.fragment_list_2, container, false);
+        recyclerView = rootView.findViewById(R.id.recyclerView);
+        adapter = new Ex7Adapter(dataSet, (AppCompatActivity) getActivity());
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(adapter);
         return rootView;
     }
 

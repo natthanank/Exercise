@@ -1,12 +1,16 @@
 package com.example.admin.exercise.exercise6;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.example.admin.exercise.R;
 
@@ -29,6 +33,8 @@ public class ThirdFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    Button logoutBtn;
 
     public ThirdFragment() {
         // Required empty public constructor
@@ -65,7 +71,16 @@ public class ThirdFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_third, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_third, container, false);
+        logoutBtn = rootView.findViewById(R.id.logoutBtn);
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((SixActivity) getActivity()).logout();
+
+            }
+        });
+        return rootView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

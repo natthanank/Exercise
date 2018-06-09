@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".exercise6.TabFragment">
+    tools:context=".exercise6.TabFragment"
+    android:id="@+id/tab-fragment">
 
     <FrameLayout
         android:layout_width="match_parent"

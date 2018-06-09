@@ -1,33 +1,26 @@
-package com.example.admin.exercise.exercise6;
+package com.example.admin.exercise.exercise7;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CalendarView;
 import android.widget.TextView;
 
 import com.example.admin.exercise.R;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link FirstFragment.OnFragmentInteractionListener} interface
+ * {@link DetailFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link FirstFragment#newInstance} factory method to
+ * Use the {@link DetailFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FirstFragment extends Fragment {
+public class DetailFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -39,32 +32,15 @@ public class FirstFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    CalendarView calendarView;
-    Button calBtn;
-    TextView ageText;
-
-    int sDate;
-    int sMonth;
-    int sYear;
-
-    public FirstFragment() {
+    public DetailFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FirstFragment.
-     */
     // TODO: Rename and change types and number of parameters
-    public static FirstFragment newInstance(String param1, String param2) {
-        FirstFragment fragment = new FirstFragment();
+    public static DetailFragment newInstance(String param1) {
+        DetailFragment fragment = new DetailFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -81,36 +57,29 @@ public class FirstFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_first, container, false);
-        calendarView = rootView.findViewById(R.id.calendar);
-        calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-            @Override
-            public void onSelectedDayChange(@NonNull CalendarView calendarView, int i, int i1, int i2) {
-                Log.i("Test calendar", String.format("%d, %d, %d", i, i1, i2));
-                sYear = i;
-                sMonth = i1+1;
-                sDate = i2;
-            }
-        });
-        calBtn = rootView.findViewById(R.id.calculateBtn);
-        ageText = rootView.findViewById(R.id.age);
-        calBtn.setOnClickListener(new View.OnClickListener() {
+        View rootView = inflater.inflate(R.layout.fragment_detail_2, container, false);
+
+        TextView postID = rootView.findViewById(R.id.postId);
+        TextView id = rootView.findViewById(R.id.id);
+        TextView name = rootView.findViewById(R.id.name);
+        TextView email = rootView.findViewById(R.id.email);
+        TextView body = rootView.findViewById(R.id.body);
+        Button backBtn = rootView.findViewById(R.id.backButton);
+        backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-                Date date = new Date();
-                int currentYear = Integer.parseInt(formatter.format(date));
-
-                ageText.setText("Your age is " + Integer.toString(currentYear - sYear) + "years old.");
-
+                getActivity().onBackPressed();
             }
         });
 
+        Comment comment = getArguments().getParcelable("comment");
+
+        postID.setText("PostID: " + comment.getPostId());
+        id.setText("ID: " + comment.getId());
+        name.setText("Name: " + comment.getName());
+        email.setText("Email: " + comment.getEmail());
+        body.setText("Body: " + comment.getBody());
         return rootView;
     }
 

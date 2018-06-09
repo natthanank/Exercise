@@ -4,9 +4,13 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 
 import com.example.admin.exercise.R;
 
@@ -29,6 +33,9 @@ public class SecondFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    EditText weightEdit, HeightEdti;
+    Button nextBtn;
 
     public SecondFragment() {
         // Required empty public constructor
@@ -65,7 +72,32 @@ public class SecondFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_second, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_second, container, false);
+
+        weightEdit = rootView.findViewById(R.id.weigthtEdit);
+        HeightEdti = rootView.findViewById(R.id.heightEdit);
+        nextBtn = rootView.findViewById(R.id.nextFragment);
+        nextBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int weight = Integer.parseInt(weightEdit.getText().toString());
+                int height = Integer.parseInt(HeightEdti.getText().toString());
+                BMI bmi = new BMI();
+                bmi.setWeight(weight);
+                bmi.setHeight(height);
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("bmi", bmi);
+                Second2Fragment second2Fragment = Second2Fragment.newInstance(null,null);
+                second2Fragment.setArguments(bundle);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.replace(R.id.fragment_tab_frame, second2Fragment);
+                transaction.addToBackStack(null);
+                transaction.commit();
+
+            }
+        });
+        return rootView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
