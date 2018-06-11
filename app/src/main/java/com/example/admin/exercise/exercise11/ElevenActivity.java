@@ -1,6 +1,8 @@
 package com.example.admin.exercise.exercise11;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.support.v7.app.AppCompatActivity;
@@ -8,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.data.Feature;
@@ -30,6 +33,7 @@ import com.example.admin.exercise.R;
 
 
 import java.io.Console;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -37,6 +41,7 @@ public class ElevenActivity extends AppCompatActivity {
 
     private MapView mMapView;
     private ArcGISMap map;
+    private ArcGISTiledLayer tiledLayerBaseMap;
     private Point screenPoint;
 
     private ServiceFeatureTable mServiceFeatureTable;
@@ -53,94 +58,127 @@ public class ElevenActivity extends AppCompatActivity {
         map = new ArcGISMap();
         mMapView.setMap(map);
 
-        ArcGISTiledLayer tiledLayerBaseMap = new ArcGISTiledLayer(getResources().getString(R.string.world_topo_service));
+        // create tile layer
+        tiledLayerBaseMap = new ArcGISTiledLayer(getResources().getString(R.string.world_topo_service));
         // set tiled layer as basemap
         Basemap basemap = new Basemap(tiledLayerBaseMap);
-        // create an empty map instance
+        // create an map instance and pass basemap as argument
         ArcGISMap map = new ArcGISMap(basemap);
 
-        mServiceFeatureTable = new ServiceFeatureTable(getString(R.string.montogomery));
+        // create service feature table
+        mServiceFeatureTable = new ServiceFeatureTable(getString(R.string.sample_service_url));
+        // create feature layer from service feature table
         mFeaturelayer = new FeatureLayer(mServiceFeatureTable);
+        // add feature layer to operational layer
         map.getOperationalLayers().add(mFeaturelayer);
 
-
+        // set map to mapView
         mMapView.setMap(map);
 
-        screenPoint = new Point(0, 0);
-
-        // call identifyLayersAsync, passing in the screen point, tolerance, return types, and maximum results, but no layer
-        final ListenableFuture<List<IdentifyLayerResult>> identifyFuture = mMapView.identifyLayersAsync(
-                screenPoint, 20, false, 25);
-
-        mMapView.setViewpointCenterAsync(new com.esri.arcgisruntime.geometry.Point(41.1197487, -80.0094202,  SpatialReference.create(26729)), 16);
-
-        // add a listener to the future
-        identifyFuture.addDoneListener(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    // get the identify results from the future - returns when the operation is complete
-                    List<IdentifyLayerResult> identifyLayersResults = identifyFuture.get();
-
-                    // iterate all the layers in the identify result
-                    for (IdentifyLayerResult identifyLayerResult : identifyLayersResults) {
-
-                        // iterate each result in each identified layer, and check for Feature results
-                        for (GeoElement identifiedElement : identifyLayerResult.getElements()) {
-                            if (identifiedElement instanceof Feature) {
-                                Feature identifiedFeature = (Feature) identifiedElement;
-
-                                // Use feature as required, for example access attributes or geometry, select, build a table, etc...
-                                processIdentifyFeatureResult(identifiedFeature, identifyLayerResult.getLayerContent());
-                            }
-                        }
-                    }
-                } catch (InterruptedException | ExecutionException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
+        mMapView.setViewpointCenterAsync(new com.esri.arcgisruntime.geometry.Point(-85.66, 38.19,  SpatialReferences.getWgs84()), 11);
 
 
-        mMapView.setOnTouchListener(new DefaultMapViewOnTouchListener(this, mMapView) {
-
-            @Override
-            public boolean onSingleTapConfirmed(MotionEvent motionEvent) {
-                Log.d("MotionEvent", "onSingleTapConfirmed: " + motionEvent.toString());
-
-                // get the point that was clicked and convert it to a point in map coordinates
-                android.graphics.Point screenPoint = new android.graphics.Point(Math.round(motionEvent.getX()),
-                        Math.round(motionEvent.getY()));
-                // create a map point from screen point
-                com.esri.arcgisruntime.geometry.Point mapPoint = mMapView.screenToLocation(screenPoint);
-                // convert to WGS84 for lat/lon format
-                com.esri.arcgisruntime.geometry.Point wgs84Point = (com.esri.arcgisruntime.geometry.Point) GeometryEngine.project(mapPoint, SpatialReferences.getWgs84());
-                // create a textview for the callout
-                TextView calloutContent = new TextView(getApplicationContext());
-                calloutContent.setTextColor(Color.BLACK);
-                calloutContent.setSingleLine();
-                // format coordinates to 4 decimal places
-                calloutContent.setText("Lat: " +  String.format("%.4f", wgs84Point.getY()) +
-                        ", Lon: " + String.format("%.4f", wgs84Point.getX()));
-
-                // get callout, set content and show
-                mCallout = mMapView.getCallout();
-                mCallout.setLocation(mapPoint);
-                mCallout.setContent(calloutContent);
-                mCallout.show();
-
-                // center on tapped point
-                mMapView.setViewpointCenterAsync(mapPoint);
-
+        // identify feature
+        // add a listener to detect taps on the map view
+        mMapView.setOnTouchListener(new DefaultMapViewOnTouchListener(ElevenActivity.this, mMapView) {
+            @Override public boolean onSingleTapConfirmed(MotionEvent e) {
+                android.graphics.Point screenPoint = new android.graphics.Point(Math.round(e.getX()),
+                        Math.round(e.getY()));
+                identifyResult(screenPoint);
                 return true;
             }
         });
-
     }
 
-    private void processIdentifyFeatureResult(Feature identifiedFeature, LayerContent layerContent) {
-        Log.i("identifiedFeature", identifiedFeature.toString());
-        Log.i("layerContent", layerContent.getName());
+    private void identifyResult(android.graphics.Point screenPoint) {
+
+        final ListenableFuture<List<IdentifyLayerResult>> identifyLayerResultsFuture = mMapView
+                .identifyLayersAsync(screenPoint, 12, false, 10);
+
+        identifyLayerResultsFuture.addDoneListener(new Runnable() {
+            @Override public void run() {
+                try {
+                    List<IdentifyLayerResult> identifyLayerResults = identifyLayerResultsFuture.get();
+                    handleIdentifyResults(identifyLayerResults);
+                } catch (InterruptedException | ExecutionException e) {
+                    Log.e("error na ja", "Error identifying results: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void handleIdentifyResults(List<IdentifyLayerResult> identifyLayerResults) {
+        StringBuilder message = new StringBuilder();
+        int totalCount = 0;
+        for (IdentifyLayerResult identifyLayerResult : identifyLayerResults) {
+            int count = geoElementsCountFromResult(identifyLayerResult);
+            String layerName = identifyLayerResult.getLayerContent().getName();
+            message.append(layerName).append(": ").append(count);
+
+            // add new line character if not the final element in array
+            if (!identifyLayerResult.equals(identifyLayerResults.get(identifyLayerResults.size() - 1))) {
+                message.append("\n");
+            }
+            totalCount += count;
+        }
+
+        // if any elements were found show the results, else notify user that no elements were found
+        if (totalCount > 0) {
+            showAlertDialog(message);
+        } else {
+            Toast.makeText(this, "No element found", Toast.LENGTH_SHORT).show();
+            Log.i("error na ja", "No element found.");
+        }
+    }
+
+    private int geoElementsCountFromResult(IdentifyLayerResult result) {
+        // create temp array
+        List<IdentifyLayerResult> tempResults = new ArrayList<>();
+        tempResults.add(result);
+
+        // using Depth First Search approach to handle recursion
+        int count = 0;
+        int index = 0;
+
+        while (index < tempResults.size()) {
+            // get the result object from the array
+            IdentifyLayerResult identifyResult = tempResults.get(index);
+
+            // update count with geoElements from the result
+            count += identifyResult.getElements().size();
+
+            // if sublayer has any results, add result objects in the tempResults array after the current result
+            if (identifyResult.getSublayerResults().size() > 0) {
+                tempResults.add(identifyResult.getSublayerResults().get(index));
+            }
+
+            // update the count and repeat
+            index += 1;
+        }
+        return count;
+    }
+
+    private void showAlertDialog(StringBuilder message) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+        // set title
+        alertDialogBuilder.setTitle("Number of elements found");
+
+        // set dialog message
+        alertDialogBuilder
+                .setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+
+        // create alert dialog
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show the alert dialog
+        alertDialog.show();
     }
 
     @Override
@@ -161,24 +199,6 @@ public class ElevenActivity extends AppCompatActivity {
         mMapView.dispose();
     }
 
-    private class IdentifyFeatureLayerTouchListener extends DefaultMapViewOnTouchListener {
 
-        private FeatureLayer layer = null; // reference to the layer to identify features in
 
-        // provide a default constructor
-        public IdentifyFeatureLayerTouchListener(Context context, MapView mapView, FeatureLayer layerToIdentify) {
-            super(context, mapView);
-            layer = layerToIdentify;
-        }
-
-        // override the onSingleTapConfirmed gesture to handle a single tap on the MapView
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            // get the screen point where user tapped
-            android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
-            // ...
-
-            return true;
-        }
-    }
 }

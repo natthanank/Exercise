@@ -5,5 +5,5 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="sample_service_url">http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Louisville/LOJIC_PublicSafety_Louisville/MapServer/3</string>
     <string name="world_topo_service">https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/</string>
-    <string name="montogomery">http://sampleserver6.arcgisonline.com/arcgis/rest/services/MontgomeryQuarters/MapServer</string>
+    <string name="montogomery">http://sampleserver6.arcgisonline.com/arcgis/rest/services/MontgomeryQuarters/MapServer/0</string>
 </resources>
