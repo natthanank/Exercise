@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="Back"
+        android:textSize="10sp"
+        android:background="#fff"
+        android:id="@+id/backBtn"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/backBtn"
+        app:layout_constraintEnd_toStartOf="@id/nextBtn"
+        android:layout_marginTop="10dp"
+        android:text="1"
+        android:id="@+id/countText"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="10sp"
+        android:text="Next"
+        android:id="@+id/nextBtn"
+        android:background="#fff"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/backBtn"
+        android:textStyle="bold"
+        android:id="@+id/row_1_head"
+        android:text="Row 1 Head"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/nextBtn"
+        android:text="Row 1 Text"
+
+        android:id="@+id/row_1_text"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/row_1_head"
+        android:textStyle="bold"
+        android:id="@+id/row_2_head"
+        android:text="Row 2 Head"
+
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/row_1_text"
+        android:text="Row 2 Text"
+
+        android:id="@+id/row_2_text"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/row_2_head"
+        android:textStyle="bold"
+        android:id="@+id/row_3_head"
+        android:text="Row 3 Head"
+
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/row_2_text"
+        android:id="@+id/row_3_text"
+        android:text="Row 3 Text"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/row_3_head"
+        android:textStyle="bold"
+        android:id="@+id/row_4_head"
+        android:text="Row 4 Head"
+
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/row_3_text"
+        android:id="@+id/row_4_text"
+        android:text="Row 4 Text"
+        />
+
+</android.support.constraint.ConstraintLayout>
